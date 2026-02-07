@@ -58,13 +58,8 @@ export async function POST(req: Request) {
         const userPrompt = `Aşağıdaki ürün dizisini değerlendir ve yalnızca istenilen JSON biçiminde sonuç ver:\n\n${JSON.stringify(slimProducts)}`;
 
         const apiKey = process.env.OPENAI_API_KEY;
-        if (!apiKey || apiKey === "dummy-key" || apiKey.startsWith("sk-proj-...")) {
-            console.warn("Invalid or missing API Key. Returning mock data.");
-            const mockResults = batch.map((item: any) => ({
-                need: Math.floor(Math.random() * 50),
-                reason: "Demo Modu: Geçerli bir OpenAI API anahtarı girilmediği için rastgele veriler üretildi."
-            }));
-            return NextResponse.json(mockResults);
+        if (!apiKey) {
+            return NextResponse.json({ error: "OpenAI API Key is missing" }, { status: 500 });
         }
 
         const completion = await openai.chat.completions.create({
